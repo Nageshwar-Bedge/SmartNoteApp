@@ -10,6 +10,7 @@ const App = () => {
   const [editingNote, setEditingNote] = useState(null);
   const [theme, setTheme] = useState("dark"); // Dark as default
 
+  // Load notes from backend
   const loadNotes = async () => {
     try {
       const res = await axios.get("http://localhost:8080/api/notes");
@@ -21,32 +22,57 @@ const App = () => {
 
   useEffect(() => { loadNotes(); }, []);
 
+  // Theme from localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) setTheme(savedTheme);
   }, []);
 
+  // Apply theme
   useEffect(() => {
     document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+  // Request notification permission
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission().then(permission => {
+        if (permission !== "granted") {
+          console.warn("Notifications are blocked!");
+        }
+      });
+    }
+  }, []);
+
+  // Reminder notifications
   useEffect(() => {
     const checkReminders = setInterval(() => {
+      const now = Date.now();
+
       notes.forEach((note) => {
         if (note.reminder) {
           const reminderTime = new Date(note.reminder).getTime();
-          const now = Date.now();
-          if (reminderTime <= now + 60000 && reminderTime > now) {
-            alert(`⏰ Reminder: ${note.title}`);
+          // Trigger notification only if within 1 minute
+          if (reminderTime <= now && reminderTime > now - 60000) {
+            if ("Notification" in window && Notification.permission === "granted") {
+              new Notification("⏰ Reminder", {
+                body: note.title + "\n" + note.content,
+                icon: "/logo192.png", // optional app icon
+              });
+            } else {
+              alert(`⏰ Reminder: ${note.title}`);
+            }
           }
         }
       });
-    }, 60000);
+    }, 30000); // check every 30 seconds
+
     return () => clearInterval(checkReminders);
   }, [notes]);
 
+  // CRUD operations
   const addNote = (note) => setNotes((prev) => [...prev, note]);
   const deleteNote = (id) => setNotes((prev) => prev.filter((n) => n.id !== id));
   const updateNote = (updated) => {
@@ -54,10 +80,12 @@ const App = () => {
     setEditingNote(null);
   };
 
-  const filteredNotes = notes.filter((note) =>
-    note.title.toLowerCase().includes(searchText.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchText.toLowerCase()) ||
-    (note.tags && note.tags.join(",").toLowerCase().includes(searchText.toLowerCase()))
+  // Filter notes by search
+  const filteredNotes = notes.filter(
+    (note) =>
+      note.title.toLowerCase().includes(searchText.toLowerCase()) ||
+      note.content.toLowerCase().includes(searchText.toLowerCase()) ||
+      (note.tags && note.tags.join(",").toLowerCase().includes(searchText.toLowerCase()))
   );
 
   return (
