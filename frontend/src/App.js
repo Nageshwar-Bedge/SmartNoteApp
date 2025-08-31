@@ -98,20 +98,25 @@ const App = () => {
     >
       <div className="max-w-5xl mx-auto p-8">
         <div className="flex justify-between items-center mb-10">
-          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text animate-gradient-x">
-            Smart Notes App
-          </h1>
-          <button
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            className={`px-4 py-2 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 ${
-              theme === "light"
-                ? "bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-white hover:from-indigo-500 hover:to-pink-500"
-                : "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-gray-100 hover:from-blue-700 hover:to-pink-700"
-            }`}
-          >
-            {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
-          </button>
-        </div>
+  <div className="flex-1 flex justify-center">
+    <h1 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text animate-gradient-x">
+      Smart Notes App
+    </h1>
+  </div>
+  <div>
+    <button
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      className={`px-4 py-2 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 ${
+        theme === "light"
+          ? "bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-white hover:from-indigo-500 hover:to-pink-500"
+          : "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-gray-100 hover:from-blue-700 hover:to-pink-700"
+      }`}
+    >
+      {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+    </button>
+  </div>
+</div>
+
 
         <SearchBar searchTerm={searchText} setSearchTerm={setSearchText} />
 
