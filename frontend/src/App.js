@@ -7,8 +7,8 @@ import SearchBar from "./components/SearchBar";
 const App = () => {
   const [notes, setNotes] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
   const [editingNote, setEditingNote] = useState(null);
+  const [theme, setTheme] = useState("dark"); // Dark as default
 
   const loadNotes = async () => {
     try {
@@ -19,11 +19,19 @@ const App = () => {
     }
   };
 
+  useEffect(() => { loadNotes(); }, []);
+
   useEffect(() => {
-    loadNotes();
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) setTheme(savedTheme);
   }, []);
 
-  // Reminder check every 1 min
+  useEffect(() => {
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
   useEffect(() => {
     const checkReminders = setInterval(() => {
       notes.forEach((note) => {
@@ -36,64 +44,62 @@ const App = () => {
         }
       });
     }, 60000);
-
     return () => clearInterval(checkReminders);
   }, [notes]);
 
-  const addNote = (note) => {
-    setNotes((prevNotes) => [...prevNotes, note]);
-  };
-
-  const deleteNote = (id) => {
-    setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
-  };
-
+  const addNote = (note) => setNotes((prev) => [...prev, note]);
+  const deleteNote = (id) => setNotes((prev) => prev.filter((n) => n.id !== id));
   const updateNote = (updated) => {
-    setNotes((prevNotes) =>
-      prevNotes.map((n) => (n.id === updated.id ? updated : n))
-    );
+    setNotes((prev) => prev.map((n) => (n.id === updated.id ? updated : n)));
     setEditingNote(null);
   };
 
-  const filteredNotes = notes.filter((note) => {
-    const matchesSearch =
-      note.title.toLowerCase().includes(searchText.toLowerCase()) ||
-      note.content.toLowerCase().includes(searchText.toLowerCase()) ||
-      (note.tags &&
-        note.tags.join(",").toLowerCase().includes(searchText.toLowerCase()));
-
-    const matchesDate =
-      !dateFilter ||
-      (note.createdAt &&
-        new Date(note.createdAt).toISOString().split("T")[0] === dateFilter);
-
-    return matchesSearch && matchesDate;
-  });
+  const filteredNotes = notes.filter((note) =>
+    note.title.toLowerCase().includes(searchText.toLowerCase()) ||
+    note.content.toLowerCase().includes(searchText.toLowerCase()) ||
+    (note.tags && note.tags.join(",").toLowerCase().includes(searchText.toLowerCase()))
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div
+      className={`min-h-screen transition-colors duration-700 ${
+        theme === "light"
+          ? "bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 text-gray-900"
+          : "bg-gradient-to-br from-gray-900 via-purple-900 to-black text-gray-100"
+      }`}
+    >
       <div className="max-w-5xl mx-auto p-8">
-        <h1 className="text-4xl font-extrabold text-center bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 text-transparent bg-clip-text mb-10">
-          Smart Notes App
-        </h1>
+        <div className="flex justify-between items-center mb-10">
+          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text animate-gradient-x">
+            Smart Notes App
+          </h1>
+          <button
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            className={`px-4 py-2 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 ${
+              theme === "light"
+                ? "bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-white hover:from-indigo-500 hover:to-pink-500"
+                : "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-gray-100 hover:from-blue-700 hover:to-pink-700"
+            }`}
+          >
+            {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+          </button>
+        </div>
 
-        <SearchBar
-          searchTerm={searchText}
-          setSearchTerm={setSearchText}
-          setDateFilter={setDateFilter}
-        />
+        <SearchBar searchTerm={searchText} setSearchTerm={setSearchText} />
 
         <NoteForm
           onNoteCreated={addNote}
           onNoteUpdated={updateNote}
           editingNote={editingNote}
           setEditingNote={setEditingNote}
+          theme={theme}
         />
 
         <NoteList
           notes={filteredNotes}
           onDelete={deleteNote}
           onEdit={setEditingNote}
+          theme={theme}
         />
       </div>
     </div>
