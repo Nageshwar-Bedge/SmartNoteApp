@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-function NoteForm({ onNoteCreated }) {
+function NoteForm({ onNoteCreated, onNoteUpdated, editingNote, setEditingNote }) {
   const [note, setNote] = useState({
     title: "",
     content: "",
@@ -9,18 +9,36 @@ function NoteForm({ onNoteCreated }) {
     reminder: "",
   });
 
+  useEffect(() => {
+    if (editingNote) {
+      setNote({
+        ...editingNote,
+        tags: editingNote.tags ? editingNote.tags.join(", ") : "",
+      });
+    }
+  }, [editingNote]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const payload = {
       ...note,
       tags: note.tags.split(",").map((tag) => tag.trim()),
     };
+
     try {
-      const res = await axios.post("http://localhost:8080/api/notes", payload);
-      onNoteCreated(res.data);
+      if (editingNote) {
+        const res = await axios.put(
+          `http://localhost:8080/api/notes/${editingNote.id}`,
+          payload
+        );
+        onNoteUpdated(res.data);
+      } else {
+        const res = await axios.post("http://localhost:8080/api/notes", payload);
+        onNoteCreated(res.data);
+      }
       setNote({ title: "", content: "", tags: "", reminder: "" });
     } catch (error) {
-      console.error("Error creating note:", error);
+      console.error("Error saving note:", error);
     }
   };
 
@@ -55,12 +73,28 @@ function NoteForm({ onNoteCreated }) {
         value={note.reminder}
         onChange={(e) => setNote({ ...note, reminder: e.target.value })}
       />
-      <button
-        type="submit"
-        className="w-full bg-gradient-to-r from-blue-600 to-indigo-500 text-white py-2 rounded-lg hover:from-blue-700 hover:to-indigo-600 shadow-md transition"
-      >
-        Save Note
-      </button>
+
+      <div className="flex gap-4">
+        <button
+          type="submit"
+          className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-500 text-white py-2 rounded-lg hover:from-blue-700 hover:to-indigo-600 shadow-md transition"
+        >
+          {editingNote ? "Update Note" : "Save Note"}
+        </button>
+
+        {editingNote && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditingNote(null);
+              setNote({ title: "", content: "", tags: "", reminder: "" });
+            }}
+            className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500"
+          >
+            Cancel
+          </button>
+        )}
+      </div>
     </form>
   );
 }

@@ -6,12 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/notes")
-@CrossOrigin(origins = "http://localhost:3000") // allow React frontend
+@CrossOrigin(origins = "http://localhost:3000")
 public class NoteController {
 
     @Autowired
@@ -63,4 +64,11 @@ public class NoteController {
     public ResponseEntity<List<Note>> search(@RequestParam String keyword) {
         return ResponseEntity.ok(noteService.searchNotes(keyword));
     }
+
+    @GetMapping("/date/{date}")
+    public ResponseEntity<List<Note>> getByDate(@PathVariable String date) {
+        LocalDateTime parsedDate = LocalDateTime.parse(date); // expects "YYYY-MM-DDTHH:MM"
+        return ResponseEntity.ok(noteService.getNotesByDate(parsedDate));
+    }
+
 }

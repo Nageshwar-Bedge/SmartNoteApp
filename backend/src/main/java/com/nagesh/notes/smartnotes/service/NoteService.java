@@ -5,6 +5,7 @@ import com.nagesh.notes.smartnotes.repository.NoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,10 +42,31 @@ public class NoteService {
     }
 
     public List<Note> getNotesByTag(String tag) {
-        return noteRepo.findByTagsContaining(tag);
+        return noteRepo.findByTagsContainingIgnoreCase(tag);
     }
 
     public List<Note> searchNotes(String keyword) {
-        return noteRepo.findByTitleContainingIgnoreCase(keyword);
+        List<Note> results = noteRepo.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(keyword, keyword);
+        results.addAll(noteRepo.findByTagsContainingIgnoreCase(keyword));
+        return results;
     }
+
+    public List<Note> getNotesByDate(LocalDateTime date) {
+        LocalDateTime start = date.withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime end = date.withHour(23).withMinute(59).withSecond(59);
+        return noteRepo.findByCreatedAtBetween(start, end);
+    }
+
+    // public List<Note> searchNotes(String keyword) {
+    // return noteRepo.findByTitleContainingIgnoreCase(keyword);
+    // }
+
+    // public List<Note> searchNotes(String keyword) {
+    // List<Note> results =
+    // noteRepo.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(keyword,
+    // keyword);
+    // results.addAll(noteRepo.findByTagsContainingIgnoreCase(keyword));
+    // return results;
+    // }
+
 }
