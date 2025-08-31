@@ -57,16 +57,6 @@ public class NoteService {
         return noteRepo.findByCreatedAtBetween(start, end);
     }
 
-    // public List<Note> searchNotes(String keyword) {
-    // return noteRepo.findByTitleContainingIgnoreCase(keyword);
-    // }
-
-    // public List<Note> searchNotes(String keyword) {
-    // List<Note> results =
-    // noteRepo.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(keyword,
-    // keyword);
-    // results.addAll(noteRepo.findByTagsContainingIgnoreCase(keyword));
-    // return results;
-    // }
+    
 
 }
