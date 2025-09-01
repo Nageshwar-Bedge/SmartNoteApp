@@ -57,6 +57,24 @@ public class NoteService {
         return noteRepo.findByCreatedAtBetween(start, end);
     }
 
-    
+    public Note togglePin(String id) {
+        return noteRepo.findById(id).map(note -> {
+            note.setPinned(!note.isPinned());
+            return noteRepo.save(note);
+        }).orElse(null);
+    }
 
+    public Note toggleFavorite(String id) {
+        return noteRepo.findById(id).map(note -> {
+            note.setFavorite(!note.isFavorite());
+            return noteRepo.save(note);
+        }).orElse(null);
+    }
+
+    public Note toggleArchive(String id) {
+        return noteRepo.findById(id).map(note -> {
+            note.setArchived(!note.isArchived());
+            return noteRepo.save(note);
+        }).orElse(null);
+    }
 }

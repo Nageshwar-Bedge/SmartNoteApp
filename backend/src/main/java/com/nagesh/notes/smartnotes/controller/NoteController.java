@@ -71,4 +71,31 @@ public class NoteController {
         return ResponseEntity.ok(noteService.getNotesByDate(parsedDate));
     }
 
+    // Toggle pin
+    @PutMapping("/{id}/pin")
+    public ResponseEntity<Note> togglePin(@PathVariable String id) {
+        Note note = noteService.togglePin(id);
+        if (note == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(note);
+    }
+
+    // Toggle favorite
+    @PutMapping("/{id}/favorite")
+    public ResponseEntity<Note> toggleFavorite(@PathVariable String id) {
+        Note note = noteService.toggleFavorite(id);
+        if (note == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(note);
+    }
+
+    // Toggle archive
+    @PutMapping("/{id}/archive")
+    public ResponseEntity<Note> toggleArchive(@PathVariable String id) {
+        Note note = noteService.toggleArchive(id);
+        if (note == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(note);
+    }
+
 }

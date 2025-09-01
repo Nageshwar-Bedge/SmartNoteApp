@@ -19,4 +19,8 @@ public class Note {
     private List<String> tags;
     private LocalDateTime reminder;
     private LocalDateTime createdAt = LocalDateTime.now();
+    private boolean pinned = false; // For pinned notes
+    private boolean favorite = false; // For starred/favorite notes
+    private boolean archived = false; // For archived notes
+
 }
