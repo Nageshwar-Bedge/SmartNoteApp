@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../services/api"; // Use centralized API
 
 function NoteForm({ onNoteCreated, onNoteUpdated, editingNote, setEditingNote, theme }) {
   const [note, setNote] = useState({ title: "", content: "", tags: "", reminder: "" });
   const [isSavingOffline, setIsSavingOffline] = useState(false);
 
-  // Load editing note into form
   useEffect(() => {
     if (editingNote) {
       setNote({
@@ -32,30 +31,26 @@ function NoteForm({ onNoteCreated, onNoteUpdated, editingNote, setEditingNote, t
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      ...note,
-      tags: note.tags ? note.tags.split(",").map(tag => tag.trim()) : [],
-    };
+    const payload = { ...note, tags: note.tags ? note.tags.split(",").map(t => t.trim()) : [] };
 
     try {
       if (navigator.onLine) {
-        // Online mode: save to backend
+        // Online mode: use centralized API
         if (editingNote) {
-          const res = await axios.put(`http://localhost:8080/api/notes/${editingNote.id}`, payload);
+          const res = await api.put(`/notes/${editingNote.id}`, payload);
           onNoteUpdated(res.data);
         } else {
-          const res = await axios.post("http://localhost:8080/api/notes", payload);
+          const res = await api.post("/notes", payload);
           onNoteCreated(res.data);
         }
       } else {
-        // Offline mode: save locally
+        // Offline mode
         const offlineNote = saveOffline(payload);
         if (editingNote) onNoteUpdated(offlineNote);
         else onNoteCreated(offlineNote);
         alert("You are offline. Note saved locally and will sync when back online.");
       }
 
-      // Reset form
       setNote({ title: "", content: "", tags: "", reminder: "" });
       setEditingNote(null);
     } catch (error) {
