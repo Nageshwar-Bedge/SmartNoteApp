@@ -16,41 +16,56 @@ public class NoteService {
 
     // Create note
     public Note createNote(Note note) {
+        note.setCreatedAt(LocalDateTime.now());
+        note.setUpdatedAt(LocalDateTime.now());
         return noteRepo.save(note);
     }
 
-    // Get all notes for a user
+    // Get all active notes for a user
     public List<Note> getNotesByUser(String userId) {
-        return noteRepo.findByUserId(userId);
+        return noteRepo.findByUserId(userId)
+                .stream()
+                .filter(note -> note.getDeletedAt() == null)
+                .toList();
     }
 
-    // Get note by ID and user
+    // Get note by ID and user (skip soft-deleted)
     public Optional<Note> getNoteByIdAndUser(String id, String userId) {
-        return noteRepo.findByIdAndUserId(id, userId);
+        return noteRepo.findByIdAndUserId(id, userId)
+                .filter(note -> note.getDeletedAt() == null);
     }
 
     // Update note (only if owned by user)
     public Optional<Note> updateNote(String id, Note updatedNote, String userId) {
-        return noteRepo.findByIdAndUserId(id, userId).map(existingNote -> {
-            if (updatedNote.getTitle() != null) existingNote.setTitle(updatedNote.getTitle());
-            if (updatedNote.getContent() != null) existingNote.setContent(updatedNote.getContent());
-            if (updatedNote.getTags() != null) existingNote.setTags(updatedNote.getTags());
-            if (updatedNote.getReminder() != null) existingNote.setReminder(updatedNote.getReminder());
-            return noteRepo.save(existingNote);
-        });
+        return noteRepo.findByIdAndUserId(id, userId)
+                .filter(note -> note.getDeletedAt() == null)
+                .map(existingNote -> {
+                    if (updatedNote.getTitle() != null) existingNote.setTitle(updatedNote.getTitle());
+                    if (updatedNote.getContent() != null) existingNote.setContent(updatedNote.getContent());
+                    if (updatedNote.getTags() != null) existingNote.setTags(updatedNote.getTags());
+                    if (updatedNote.getReminder() != null) existingNote.setReminder(updatedNote.getReminder());
+                    existingNote.setUpdatedAt(LocalDateTime.now());
+                    return noteRepo.save(existingNote);
+                });
     }
 
-    // Delete note (only if owned by user)
+    // Soft delete note (only if owned by user)
     public boolean deleteNote(String id, String userId) {
-        return noteRepo.findByIdAndUserId(id, userId).map(note -> {
-            noteRepo.delete(note);
-            return true;
-        }).orElse(false);
+        return noteRepo.findByIdAndUserId(id, userId)
+                .filter(note -> note.getDeletedAt() == null)
+                .map(note -> {
+                    note.setDeletedAt(LocalDateTime.now());
+                    noteRepo.save(note);
+                    return true;
+                }).orElse(false);
     }
 
     // Get notes by tag for a user
     public List<Note> getNotesByTagAndUser(String tag, String userId) {
-        return noteRepo.findByTagsContainingIgnoreCaseAndUserId(tag, userId);
+        return noteRepo.findByTagsContainingIgnoreCaseAndUserId(tag, userId)
+                .stream()
+                .filter(note -> note.getDeletedAt() == null)
+                .toList();
     }
 
     // Search notes for a user (title, content, tags)
@@ -60,11 +75,16 @@ public class NoteService {
         results.addAll(
                 noteRepo.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(keyword, keyword)
                         .stream()
-                        .filter(note -> note.getUserId().equals(userId))
+                        .filter(note -> note.getUserId().equals(userId) && note.getDeletedAt() == null)
                         .toList()
         );
 
-        results.addAll(noteRepo.findByTagsContainingIgnoreCaseAndUserId(keyword, userId));
+        results.addAll(
+                noteRepo.findByTagsContainingIgnoreCaseAndUserId(keyword, userId)
+                        .stream()
+                        .filter(note -> note.getDeletedAt() == null)
+                        .toList()
+        );
 
         return new ArrayList<>(results);
     }
@@ -73,30 +93,42 @@ public class NoteService {
     public List<Note> getNotesByDateAndUser(LocalDateTime date, String userId) {
         LocalDateTime start = date.withHour(0).withMinute(0).withSecond(0);
         LocalDateTime end = date.withHour(23).withMinute(59).withSecond(59);
-        return noteRepo.findByCreatedAtBetweenAndUserId(start, end, userId);
+        return noteRepo.findByCreatedAtBetweenAndUserId(start, end, userId)
+                .stream()
+                .filter(note -> note.getDeletedAt() == null)
+                .toList();
     }
 
     // Toggle pin
     public Optional<Note> togglePin(String id, String userId) {
-        return noteRepo.findByIdAndUserId(id, userId).map(note -> {
-            note.setPinned(!note.isPinned());
-            return noteRepo.save(note);
-        });
+        return noteRepo.findByIdAndUserId(id, userId)
+                .filter(note -> note.getDeletedAt() == null)
+                .map(note -> {
+                    note.setPinned(!note.isPinned());
+                    note.setUpdatedAt(LocalDateTime.now());
+                    return noteRepo.save(note);
+                });
     }
 
     // Toggle favorite
     public Optional<Note> toggleFavorite(String id, String userId) {
-        return noteRepo.findByIdAndUserId(id, userId).map(note -> {
-            note.setFavorite(!note.isFavorite());
-            return noteRepo.save(note);
-        });
+        return noteRepo.findByIdAndUserId(id, userId)
+                .filter(note -> note.getDeletedAt() == null)
+                .map(note -> {
+                    note.setFavorite(!note.isFavorite());
+                    note.setUpdatedAt(LocalDateTime.now());
+                    return noteRepo.save(note);
+                });
     }
 
     // Toggle archive
     public Optional<Note> toggleArchive(String id, String userId) {
-        return noteRepo.findByIdAndUserId(id, userId).map(note -> {
-            note.setArchived(!note.isArchived());
-            return noteRepo.save(note);
-        });
+        return noteRepo.findByIdAndUserId(id, userId)
+                .filter(note -> note.getDeletedAt() == null)
+                .map(note -> {
+                    note.setArchived(!note.isArchived());
+                    note.setUpdatedAt(LocalDateTime.now());
+                    return noteRepo.save(note);
+                });
     }
 }

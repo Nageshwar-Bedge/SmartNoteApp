@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../services/api"; // centralized API calls
+import api from "../services/api";
 
 function Register() {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
@@ -17,7 +17,7 @@ function Register() {
     setLoading(true);
     setError("");
     try {
-      await api.post("/auth/register", form); // backend call
+      await api.post("/auth/register", form);
       alert("✅ Registration successful! Please login.");
       navigate("/login");
     } catch (err) {
@@ -45,7 +45,7 @@ function Register() {
           placeholder="Username"
           value={form.username}
           onChange={handleChange}
-          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
           required
         />
 
@@ -55,7 +55,7 @@ function Register() {
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
           required
         />
 
@@ -65,7 +65,7 @@ function Register() {
           placeholder="Password"
           value={form.password}
           onChange={handleChange}
-          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
+          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
           required
         />
 

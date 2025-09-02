@@ -20,9 +20,14 @@ public class Note {
     @Id
     private String id;
 
+    @Indexed
+    private String userId; // Reference to User
+
     private String title;
     private String content;
-    private List<String> tags;
+
+    @Builder.Default
+    private List<String> tags = List.of();
 
     private LocalDateTime reminder;
 
@@ -32,15 +37,17 @@ public class Note {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    @Builder.Default
     @Indexed
     private boolean pinned = false;
 
+    @Builder.Default
     @Indexed
     private boolean favorite = false;
 
+    @Builder.Default
     @Indexed
     private boolean archived = false;
 
-    @Indexed
-    private String userId; // reference to User
+    private LocalDateTime deletedAt; // Soft delete support
 }
