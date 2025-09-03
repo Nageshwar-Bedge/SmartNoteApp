@@ -1,10 +1,13 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function NoteView({ notes, onEdit, onArchive, theme }) {
   const { id } = useParams();
   const navigate = useNavigate();
-  const note = notes.find((n) => n.id.toString() === id);
+
+  // Find note using _id (online) or id (offline)
+  const note = notes.find((n) => (n._id || n.id).toString() === id);
 
   if (!note) {
     return (
@@ -19,24 +22,25 @@ function NoteView({ notes, onEdit, onArchive, theme }) {
   }
 
   const copyToClipboard = async (content) => {
-    if (!content) return alert("No content to copy!");
+    if (!content) return toast.error("No content to copy!");
     try {
       await navigator.clipboard.writeText(content);
-      alert("Note content copied to clipboard!");
+      toast.success("Note content copied!");
     } catch (err) {
       console.error(err);
-      alert("Failed to copy content.");
+      toast.error("Failed to copy content.");
     }
   };
 
-  const shareLink = async (noteId) => {
-    const url = `${window.location.origin}/note/${noteId}`;
+  const shareLink = async (note) => {
+    const noteKey = note._id || note.id;
+    const url = `${window.location.origin}/note/${noteKey}`;
     try {
       await navigator.clipboard.writeText(url);
-      alert("Shareable link copied to clipboard!");
+      toast.success("Shareable link copied!");
     } catch (err) {
       console.error(err);
-      alert("Failed to copy link.");
+      toast.error("Failed to copy link.");
     }
   };
 
@@ -55,7 +59,9 @@ function NoteView({ notes, onEdit, onArchive, theme }) {
             <span
               key={i}
               className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                theme === "light" ? "bg-purple-100 text-purple-700" : "bg-purple-700 text-purple-100"
+                theme === "light"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-purple-700 text-purple-100"
               }`}
             >
               {tag}
@@ -85,20 +91,23 @@ function NoteView({ notes, onEdit, onArchive, theme }) {
         >
           Edit
         </button>
+
         <button
-          onClick={() => onArchive(note.id)}
+          onClick={() => onArchive(note)}
           className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
         >
           {note.archived ? "Unarchive" : "Archive"}
         </button>
+
         <button
           onClick={() => copyToClipboard(note.content)}
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
         >
           Copy
         </button>
+
         <button
-          onClick={() => shareLink(note.id)}
+          onClick={() => shareLink(note)}
           className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition"
         >
           Share
