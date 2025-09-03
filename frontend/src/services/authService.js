@@ -1,4 +1,4 @@
-import api from "../api";
+import api from "./api";
 
 // User registration
 export const registerUser = async (userData) => {
@@ -6,7 +6,8 @@ export const registerUser = async (userData) => {
     const res = await api.post("/auth/register", userData);
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "Registration failed" };
+    const error = err.response?.data?.message || err.message || "Registration failed";
+    throw new Error(error);
   }
 };
 
@@ -19,7 +20,8 @@ export const loginUser = async (credentials) => {
     }
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "Login failed" };
+    const error = err.response?.data?.message || err.message || "Login failed";
+    throw new Error(error);
   }
 };
 
@@ -29,11 +31,13 @@ export const getCurrentUser = async () => {
     const res = await api.get("/auth/me");
     return res.data;
   } catch (err) {
-    throw err.response?.data || { message: "Unable to fetch user" };
+    const error = err.response?.data?.message || err.message || "Unable to fetch user";
+    throw new Error(error);
   }
 };
 
 // Logout
 export const logoutUser = () => {
   localStorage.removeItem("token");
+  window.location.href = "/login";
 };
