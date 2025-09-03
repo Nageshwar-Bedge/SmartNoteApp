@@ -1,74 +1,71 @@
-import React, { useEffect, useState } from "react";
-import api from "../services/api"; // using the axios instance with token
-import NoteForm from "./NoteForm";
+import React from "react";
 
-const NoteList = () => {
-  const [notes, setNotes] = useState([]);
-  const [editingNote, setEditingNote] = useState(null);
-
-  // Fetch all notes
-  const fetchNotes = async () => {
-    try {
-      const res = await api.get("/notes");
-      setNotes(res.data);
-    } catch (err) {
-      console.error("Error fetching notes:", err.response?.data || err.message);
-    }
-  };
-
-  // Delete a note
-  const deleteNote = async (id) => {
-    try {
-      await api.delete(`/notes/${id}`);
-      setNotes(notes.filter((note) => note._id !== id));
-    } catch (err) {
-      console.error("Error deleting note:", err.response?.data || err.message);
-    }
-  };
-
-  // Save updated or new note
-  const saveNote = async (noteData) => {
-    try {
-      if (editingNote) {
-        // Update
-        const res = await api.put(`/notes/${editingNote._id}`, noteData);
-        setNotes(
-          notes.map((note) =>
-            note._id === editingNote._id ? res.data : note
-          )
-        );
-        setEditingNote(null);
-      } else {
-        // Create
-        const res = await api.post("/notes", noteData);
-        setNotes([...notes, res.data]);
-      }
-    } catch (err) {
-      console.error("Error saving note:", err.response?.data || err.message);
-    }
-  };
-
-  useEffect(() => {
-    fetchNotes();
-  }, []);
-
+function NoteList({ notes, onDelete, onEdit, onPin, onFavorite, onArchive, theme, isArchivedView }) {
   return (
-    <div>
-      <h2>Your Notes</h2>
-      <NoteForm onSave={saveNote} editingNote={editingNote} />
-      <ul>
-        {notes.map((note) => (
-          <li key={note._id} style={{ marginBottom: "15px" }}>
-            <h4>{note.title}</h4>
-            <p>{note.content}</p>
-            {note.tags && <p><b>Tags:</b> {note.tags.join(", ")}</p>}
-            <button onClick={() => setEditingNote(note)}>Edit</button>
-            <button onClick={() => deleteNote(note._id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {notes.map((note) => {
+        const noteId = note._id || note.id; // support both online and offline notes
+        return (
+          <div
+            key={noteId}
+            className={`p-4 rounded-lg shadow-md border transition-colors duration-300 ${
+              theme === "light" ? "bg-white border-gray-200" : "bg-gray-900 border-gray-700"
+            }`}
+          >
+            <div className="flex justify-between items-start">
+              <h3 className="text-lg font-semibold">{note.title}</h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => onPin(noteId)}
+                  title={note.pinned ? "Unpin Note" : "Pin Note"}
+                  className="hover:scale-110 transition-transform"
+                >
+                  {note.pinned ? "📌" : "📍"}
+                </button>
+                <button
+                  onClick={() => onFavorite(noteId)}
+                  title={note.favorite ? "Remove Favorite" : "Add Favorite"}
+                  className="hover:scale-110 transition-transform"
+                >
+                  {note.favorite ? "❤️" : "🤍"}
+                </button>
+                <button
+                  onClick={() => onArchive(noteId)}
+                  title={isArchivedView ? "Unarchive Note" : "Archive Note"}
+                  className="hover:scale-110 transition-transform"
+                >
+                  {isArchivedView ? "📤" : "🗄️"}
+                </button>
+                <button
+                  onClick={() => onEdit(note)}
+                  title="Edit Note"
+                  className="hover:scale-110 transition-transform"
+                >
+                  ✏️
+                </button>
+                <button
+                  onClick={() => onDelete(noteId)}
+                  title="Delete Note"
+                  className="hover:scale-110 transition-transform"
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
+            <p className="mt-2">{note.content}</p>
+            {note.tags?.length > 0 && (
+              <div className="mt-2 text-sm text-gray-500">Tags: {note.tags.join(", ")}</div>
+            )}
+            {note.reminder && (
+              <div className="mt-1 text-sm text-blue-500">
+                Reminder: {new Date(note.reminder).toLocaleString()}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
-};
+}
 
 export default NoteList;
