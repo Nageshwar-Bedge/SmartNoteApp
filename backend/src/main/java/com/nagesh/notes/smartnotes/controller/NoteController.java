@@ -24,7 +24,7 @@ public class NoteController {
     // Create note
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Note note,
-                                    @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String userId) {
         try {
             note.setUserId(userId);
             Note saved = noteService.createNote(note);
@@ -44,7 +44,7 @@ public class NoteController {
     // Get note by ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable String id,
-                                     @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String userId) {
         var optionalNote = noteService.getNoteByIdAndUser(id, userId);
         if (optionalNote.isPresent()) {
             return ResponseEntity.ok(optionalNote.get());
@@ -57,8 +57,8 @@ public class NoteController {
     // Update note
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable String id,
-                                    @RequestBody Note note,
-                                    @AuthenticationPrincipal String userId) {
+            @RequestBody Note note,
+            @AuthenticationPrincipal String userId) {
         var optionalNote = noteService.updateNote(id, note, userId);
         if (optionalNote.isPresent()) {
             return ResponseEntity.ok(optionalNote.get());
@@ -71,7 +71,7 @@ public class NoteController {
     // Delete note
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id,
-                                    @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String userId) {
         boolean deleted = noteService.deleteNote(id, userId);
         if (!deleted) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -83,21 +83,21 @@ public class NoteController {
     // Get notes by tag
     @GetMapping("/tag/{tag}")
     public ResponseEntity<List<Note>> getByTag(@PathVariable String tag,
-                                               @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String userId) {
         return ResponseEntity.ok(noteService.getNotesByTagAndUser(tag, userId));
     }
 
     // Search notes
     @GetMapping("/search")
     public ResponseEntity<List<Note>> search(@RequestParam String keyword,
-                                             @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String userId) {
         return ResponseEntity.ok(noteService.searchNotesForUser(keyword, userId));
     }
 
     // Get notes by date
     @GetMapping("/date/{date}")
     public ResponseEntity<?> getByDate(@PathVariable String date,
-                                       @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String userId) {
         try {
             LocalDateTime parsedDate;
             if (date.length() == 10) { // format: YYYY-MM-DD
@@ -115,7 +115,7 @@ public class NoteController {
     // Toggle pin
     @PutMapping("/{id}/pin")
     public ResponseEntity<?> togglePin(@PathVariable String id,
-                                       @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String userId) {
         var optionalNote = noteService.togglePin(id, userId);
         if (optionalNote.isPresent()) {
             return ResponseEntity.ok(optionalNote.get());
@@ -128,7 +128,7 @@ public class NoteController {
     // Toggle favorite
     @PutMapping("/{id}/favorite")
     public ResponseEntity<?> toggleFavorite(@PathVariable String id,
-                                            @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String userId) {
         var optionalNote = noteService.toggleFavorite(id, userId);
         if (optionalNote.isPresent()) {
             return ResponseEntity.ok(optionalNote.get());
@@ -141,7 +141,7 @@ public class NoteController {
     // Toggle archive
     @PutMapping("/{id}/archive")
     public ResponseEntity<?> toggleArchive(@PathVariable String id,
-                                           @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String userId) {
         var optionalNote = noteService.toggleArchive(id, userId);
         if (optionalNote.isPresent()) {
             return ResponseEntity.ok(optionalNote.get());
