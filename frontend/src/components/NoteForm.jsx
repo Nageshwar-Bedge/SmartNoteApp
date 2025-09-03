@@ -1,41 +1,48 @@
 import React, { useState, useEffect } from "react";
-import api from "../services/api"; // Use centralized API
+import api from "../services/api"; // Centralized API
 
 function NoteForm({ onNoteCreated, onNoteUpdated, editingNote, setEditingNote, theme }) {
   const [note, setNote] = useState({ title: "", content: "", tags: "", reminder: "" });
   const [isSavingOffline, setIsSavingOffline] = useState(false);
 
+  // Populate form if editing
   useEffect(() => {
     if (editingNote) {
       setNote({
         ...editingNote,
         tags: editingNote.tags ? editingNote.tags.join(", ") : "",
-        reminder: editingNote.reminder || ""
+        reminder: editingNote.reminder || "",
       });
     }
   }, [editingNote]);
 
+  // Save note offline
   const saveOffline = (payload) => {
     setIsSavingOffline(true);
     const offlineNotes = JSON.parse(localStorage.getItem("offlineNotes") || "[]");
+
     if (editingNote) {
-      const updatedNotes = offlineNotes.map(n => (n.id === editingNote.id ? payload : n));
+      const updatedNotes = offlineNotes.map((n) => (n.id === editingNote.id ? payload : n));
       localStorage.setItem("offlineNotes", JSON.stringify(updatedNotes));
     } else {
       payload.id = `offline-${Date.now()}`;
       localStorage.setItem("offlineNotes", JSON.stringify([...offlineNotes, payload]));
     }
+
     setIsSavingOffline(false);
     return payload;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = { ...note, tags: note.tags ? note.tags.split(",").map(t => t.trim()) : [] };
+    const payload = {
+      ...note,
+      tags: note.tags ? note.tags.split(",").map((t) => t.trim()) : [],
+    };
 
     try {
       if (navigator.onLine) {
-        // Online mode: use centralized API
+        // Online mode: create or update via API
         if (editingNote) {
           const res = await api.put(`/notes/${editingNote.id}`, payload);
           onNoteUpdated(res.data);
@@ -51,6 +58,7 @@ function NoteForm({ onNoteCreated, onNoteUpdated, editingNote, setEditingNote, t
         alert("You are offline. Note saved locally and will sync when back online.");
       }
 
+      // Reset form
       setNote({ title: "", content: "", tags: "", reminder: "" });
       setEditingNote(null);
     } catch (error) {
