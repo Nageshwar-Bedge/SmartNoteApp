@@ -76,31 +76,32 @@ function Login({ setToken }) {
 
       <form onSubmit={handleLogin} className="space-y-4">
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
-          required
-        />
+  type="email"
+  placeholder="Email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  className="w-full p-2 border rounded bg-gray-200 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  required
+/>
 
-        <div className="relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
-            required
-          />
-          <button
-            type="button"
-            className="absolute right-2 top-2 text-sm text-gray-500"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? "Hide" : "Show"}
-          </button>
-        </div>
+<div className="relative">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className="w-full p-2 border rounded bg-gray-200 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    required
+  />
+  <button
+    type="button"
+    className="absolute right-2 top-2 text-sm text-gray-500"
+    onClick={() => setShowPassword(!showPassword)}
+  >
+    {showPassword ? "Hide" : "Show"}
+  </button>
+</div>
+
 
         <button
           type="submit"

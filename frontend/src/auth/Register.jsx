@@ -34,7 +34,7 @@ function Register() {
 
     setLoading(true);
     try {
-      await registerUser(form); // ✅ using authService
+      await registerUser(form);
       toast.success("Registration successful! Please login.");
       navigate("/login");
     } catch (err) {
@@ -61,7 +61,7 @@ function Register() {
           placeholder="Username"
           value={form.username}
           onChange={handleChange}
-          className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100"
+          className="w-full p-2 border rounded bg-gray-200 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           required
         />
 
@@ -71,7 +71,7 @@ function Register() {
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100"
+          className="w-full p-2 border rounded bg-gray-200 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
           required
         />
 
@@ -82,7 +82,7 @@ function Register() {
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
-            className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100"
+            className="w-full p-2 border rounded bg-gray-200 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
             required
           />
           <button
