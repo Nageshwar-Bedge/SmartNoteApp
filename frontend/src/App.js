@@ -195,12 +195,13 @@ const App = () => {
         <Toaster position="top-right" />
         <div className="max-w-5xl mx-auto p-8">
           {/* Header */}
-          <div className="flex justify-between items-center mb-10">
-            <h1 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text animate-gradient-x flex-1 text-center">
+          <div className="relative flex items-center mb-10">
+            <h1 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text animate-gradient-x absolute left-1/2 transform -translate-x-1/2 text-center">
               Smart Notes App
             </h1>
 
-            <div className="flex gap-4">
+            {/* Buttons */}
+            <div className="ml-auto flex gap-4">
               <button
                 onClick={() => setTheme(theme === "light" ? "dark" : "light")}
                 className={`px-4 py-2 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 ${
