@@ -19,6 +19,7 @@ const App = () => {
   const [editingNote, setEditingNote] = useState(null);
   const [theme, setTheme] = useState("dark");
   const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [unlockedNotes, setUnlockedNotes] = useState({}); // Track unlocked note IDs
 
   // Load notes (online or offline)
   const loadNotes = useCallback(async () => {
@@ -127,6 +128,36 @@ const App = () => {
       )
     );
 
+  // 🔒 Lock/Unlock Feature
+  const lockNote = (id, password) =>
+    setNotes((prev) =>
+      prev.map((n) =>
+        n._id === id || n.id === id ? { ...n, locked: true, lockPassword: password } : n
+      )
+    );
+
+  const unlockNote = (id, password) => {
+    const note = notes.find((n) => n._id === id || n.id === id);
+    if (!note) return false;
+    if (note.lockPassword === password) {
+      setUnlockedNotes((prev) => ({ ...prev, [id]: true }));
+      toast.success("Note unlocked!");
+      return true;
+    } else {
+      toast.error("Incorrect password");
+      return false;
+    }
+  };
+
+  const relockNote = (id) => {
+    setUnlockedNotes((prev) => {
+      const copy = { ...prev };
+      delete copy[id];
+      return copy;
+    });
+    toast("Note locked again.");
+  };
+
   // Filtered notes for search
   const filteredNotes = notes
     .filter((n) => !n.archived)
@@ -161,6 +192,10 @@ const App = () => {
         onPin={togglePin}
         onFavorite={toggleFavorite}
         onArchive={toggleArchive}
+        onLock={lockNote}
+        onUnlock={unlockNote}
+        onRelock={relockNote}
+        unlockedNotes={unlockedNotes}
         theme={theme}
         isArchivedView={false}
       />
@@ -175,6 +210,10 @@ const App = () => {
             onPin={togglePin}
             onFavorite={toggleFavorite}
             onArchive={toggleArchive}
+            onLock={lockNote}
+            onUnlock={unlockNote}
+            onRelock={relockNote}
+            unlockedNotes={unlockedNotes}
             theme={theme}
             isArchivedView={true}
           />
@@ -241,6 +280,8 @@ const App = () => {
                     theme={theme}
                     onEdit={setEditingNote}
                     onArchive={toggleArchive}
+                    onUnlock={unlockNote}
+                    unlockedNotes={unlockedNotes}
                   />
                 </ProtectedRoute>
               }
