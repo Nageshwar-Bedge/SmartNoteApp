@@ -34,21 +34,21 @@ function NoteList({ notes, onDelete, onEdit, onPin, onFavorite, onArchive, theme
                   title={isArchivedView ? "Unarchive Note" : "Archive Note"}
                   className="hover:scale-110 transition-transform"
                 >
-                  {isArchivedView ? "📤" : "🗄️"}
+                  {isArchivedView ? "📤" : "📤"}
                 </button>
                 <button
                   onClick={() => onEdit(note)}
                   title="Edit Note"
                   className="hover:scale-110 transition-transform"
                 >
-                  ✏️
+                  📝
                 </button>
                 <button
                   onClick={() => onDelete(noteId)}
                   title="Delete Note"
                   className="hover:scale-110 transition-transform"
                 >
-                  🗑️
+                  ❌
                 </button>
               </div>
             </div>
